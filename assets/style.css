@@ -1,0 +1,39 @@
+.mainPage {
+    display: flex;
+    border: solid 1px black;
+    height: 500px;
+}
+
+.leftSide {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    border: solid 1px black;
+}
+
+.rightSide {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    border: solid 1px black;
+}
+
+#searchBar {
+    border: solid 1px black;
+    height: 30%;
+}
+
+#cityList {
+    border: solid 1px black;
+    height: 70%;
+}
+
+#currentWeather {
+    border: solid 1px black;
+    height:50%
+}
+
+#fiveDay {
+    border: solid 1px black;
+    height: 50%;
+}
