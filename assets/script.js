@@ -10,7 +10,7 @@ var currDate = moment().format("L");
 // var oneCallAPI = "https://api.openweathermap.org/data/2.5/onecall?lat=39.93&lon=-75.18&appid=fef1b5f97f885ac2cd91c31a7744a496"
 var searchResult = $("#queryInput");
 var submitBtn = $("#querySub");
-var fiveDay = $("#fiveDay");
+var forecast = $("#forecast");
 
 var ulEl = $("#cities");
 var liCreate = $('<li class="city-list"></li>');
@@ -75,20 +75,24 @@ function test(event) {
             return response.json();
         })
         .then(function (data) {
-            params.lat = data.coord["lat"];
-            params.lon = data.coord["lon"];
+            // params.lat = data.coord["lat"];
+            // params.lon = data.coord["lon"];
             console.log(data);
             console.log(data.name);
             // console.log(data.main);
             console.log(data.weather[0]["icon"]);
             console.log(data.wind);
             console.log(data.coord);
+            console.log(data.coord["lat"]);
+            console.log(data.coord["lon"]);
+
             console.log(JSON.stringify(data))
             
             citySearches.splice(0, 0, city)
             localStorage.setItem("cityHistory", JSON.stringify(citySearches))
             renderCityList(data);
             renderCurrWeather(data);
+            fiveDay(data.coord["lat"], data.coord["lon"]);
         })
         .catch((error) => {
             console.log(error);
@@ -139,7 +143,7 @@ function getUV(lat, lon) {
         });
 }
 
-function GetLastEight(){
+function getLastEight(){
     for(var i = 0; i < 8; i++) {
 
         citySearches.splice(0,0, i+1)
@@ -151,7 +155,7 @@ function GetLastEight(){
 
 function renderCurrWeather (data) {
     currWeather.empty();
-    currWeather.append($(`<li><h2>${data.name} ${moment().format("L")}<img src="https://openweathermap.org/img/wn/${data.weather[0]["icon"]}@2x.png"</h2></li>`));
+    currWeather.append($(`<li><h2>${data.name} ${moment().format("L")}<img src="https://openweathermap.org/img/wn/${data.weather[0]["icon"]}@2x.png"></h2></li>`));
     currWeather.append($(`<li>Temp: ${Math.round(data.main["temp"])}°F</li>`));
     currWeather.append($(`<li>Wind: ${Math.round(data.wind["speed"])} MPH</li>`));
     currWeather.append($(`<li>Humidity: ${data.main["humidity"]}%</li>`));
@@ -159,21 +163,34 @@ function renderCurrWeather (data) {
     
 }
 
-function fiveDay(event) {
-    event.preventDefault();
-    // var city = searchResult.val()
-    fetch(uvAPI + "lat=" + params.lat + "&lon=" + params.lon + params.apiKey)
-        .then(function (response) {
+// function fiveDay(lat, lon) {
+//     fetch(uvAPI + "lat=" + lat + "&lon=" + lon + params.apiKey)
+//         .then(function (response) {
+//             return response.json();
+//         })
+//         .then(function(data) {
+//             console.log(data)
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             alert("city not found");
+//             return;
+//         });
+// }
+
+function fiveDay(lat, lon) {
+    forecast.empty();
+    fetch(uvAPI + "lat=" + lat + "&lon=" + lon + params.units + params.apiKey)
+        .then(function(response) {
             return response.json();
         })
         .then(function(data) {
-            console.log(data)
+            console.log(data.daily[0]);
+            
+            for(var i = 0; i < 5; i++)
+                forecast.append($(`<div><ul><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));
+            
         })
-        .catch((error) => {
-            console.log(error);
-            alert("city not found");
-            return;
-        });
 }
 
 function renderCityList(data) {
