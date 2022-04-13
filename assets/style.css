@@ -37,3 +37,28 @@
     border: solid 1px black;
     height: 50%;
 }
+
+#uvLow {
+    background-color: green;
+    color: white;
+}
+
+#uvMod {
+    background-color: yellow;
+    color: black;
+}
+
+#uvHigh {
+    background-color: orange;
+    color: black;
+}
+
+#uvVerHigh {
+    background-color: red;
+    color: white;
+}
+
+#uvExtr {
+    background-color: purple;
+    color: white;
+}
