@@ -1,3 +1,7 @@
+li {
+    list-style: none;
+}
+
 .mainPage {
     display: flex;
     border: solid 1px black;

@@ -1,51 +1,24 @@
 var weatherAPI = "https://api.openweathermap.org/data/2.5/weather?q=";
 var uvAPI = "https://api.openweathermap.org/data/2.5/onecall?";
 var fiveDayAPI = "http://bulk.openweathermap.org/snapshot/hourly_14.json.gz?appid=fef1b5f97f885ac2cd91c31a7744a496"
-// var weatherCodeImg = `https://openweathermap.org/img/wn/${iconCode}@2x.png`
 var APIKey = "fef1b5f97f885ac2cd91c31a7744a496";
 var geoCodeAPI = "AIzaSyBG2mswChpByVpFe8GRN2L6_yZrV_U5Y00";
-// var city = "philadelphia"
 var currDate = moment().format("L");
-// var weatherAPI = "https://api.openweathermap.org/data/2.5/weather?lat=39.93&lon=-75.18&appid=fef1b5f97f885ac2cd91c31a7744a496"
-// var oneCallAPI = "https://api.openweathermap.org/data/2.5/onecall?lat=39.93&lon=-75.18&appid=fef1b5f97f885ac2cd91c31a7744a496"
 var searchResult = $("#queryInput");
-var submitBtn = $("#querySub");
+var submitBtn = $(".weatherBtn");
 var forecast = $("#forecast");
-
 var ulEl = $("#cities");
 var liCreate = $('<li class="city-list"></li>');
 var liEl = $(".city-list");
 var anchCreate = $('<a class="city-link">');
 var anchEl = $(".city-link");
-var btnCreate = $('<button type="submit" class="cityBtn"></button>');
-var cityBtn = $(".cityBtn");
+var btnCreate = $('<button type="submit" class="weatherBtn"></button>');
 var currWeather = $("#currWeather");
 
 var params = {
     apiKey:"&appid=fef1b5f97f885ac2cd91c31a7744a496",
     units: "&units=imperial",
-    lat: "",
-    lon: "",
-
 };
-
-// var cityURL = weatherAPI + city + params.units + params.apiKey
-// const params = {
-//     lat: "39.90809",
-//     lon: "-75.32558",
-//     appid: APIKey,
-// }
-
-// const options = {
-//     method: 'GET',
-//     body: JSON.stringify(params)  
-// };
-
-// fetch( weatherAPI, options )
-//     .then( response => response.json() )
-//     .then( response => {
-//         console.log(response)
-//     } );
 
 // GIVEN a weather dashboard with form inputs
 // WHEN I search for a city
@@ -59,62 +32,52 @@ var params = {
 // WHEN I click on a city in the search history
 // THEN I am again presented with current and future conditions for that city
 
-
-// Geocoding
-// https://stackoverflow.com/questions/5585957/get-latlng-from-zip-code-google-maps-api
 var citySearches = [];
-
-
-
 
 function test(event) {
     event.preventDefault();
-    var city = searchResult.val()
-    fetch(weatherAPI + city + params.units + params.apiKey)
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data) {
-            // params.lat = data.coord["lat"];
-            // params.lon = data.coord["lon"];
-            console.log(data);
-            console.log(data.name);
-            // console.log(data.main);
-            console.log(data.weather[0]["icon"]);
-            console.log(data.wind);
-            console.log(data.coord);
-            console.log(data.coord["lat"]);
-            console.log(data.coord["lon"]);
-
-            console.log(JSON.stringify(data))
-            
-            citySearches.splice(0, 0, city)
-            localStorage.setItem("cityHistory", JSON.stringify(citySearches))
-            renderCityList(data);
-            renderCurrWeather(data);
-            fiveDay(data.coord["lat"], data.coord["lon"]);
-        })
-        .catch((error) => {
-            console.log(error);
-            alert("city not found");
-            return;
-        });
+    console.log(event.target);
+    if ($(".cityBtn")) {
+        console.log("city btn")
+    }
+    if($("#querySub")) {
+        console.log("you hit the search btn")
+    
+        var city = searchResult.val()
+        fetch(weatherAPI + city + params.units + params.apiKey)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if(data.cod == 404) {
+                    alert("City Not Found");
+                    return;
+                } else {
+                    console.log(data.cod);   
+                        
+                    // localStorage.setItem("cityHistory", JSON.stringify(citySearches))
+                    renderCityList(data);
+                    renderCurrWeather(data);
+                    fiveDay(data.coord["lat"], data.coord["lon"]);
+                    // event listener was running event twice when button was click.  Unbinding the even so the function only runs once on click.
+                    $(".cityBtn").unbind("click").click(renderSearchHistory)
+                    console.log(citySearches)  
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                alert("city not found");
+                return;
+            });
+    };
+    
 }
 
 
 // store city names and links in localStorage
 
-
-
-
 // loop through results array to append list items of the last 8 search results.  
 // each new result is spliced into the array at the beginning, moving the index position of all previous results up by 1
-
-// lastFiveResults.each(function(index) {
-//     if(index < 5) {
-//         lastFiveResults.splice(0,0, index+1)
-//     }
-// })
 
 function getUV(lat, lon) {
     fetch(uvAPI + "lat=" + lat + "&lon=" + lon + params.apiKey)
@@ -143,13 +106,13 @@ function getUV(lat, lon) {
         });
 }
 
-function getLastEight(){
-    for(var i = 0; i < 8; i++) {
+// function getLastEight(){
+//     for(var i = 0; i < 8; i++) {
 
-        citySearches.splice(0,0, i+1)
-        // output +> [8, 7, 6, 5, 4, 3, 2, 1]
-    }
-}
+//         citySearches.splice(0,0, i+1)
+//         // output +> [8, 7, 6, 5, 4, 3, 2, 1]
+//     }
+// }
 
 // create city list
 
@@ -160,24 +123,9 @@ function renderCurrWeather (data) {
     currWeather.append($(`<li>Wind: ${Math.round(data.wind["speed"])} MPH</li>`));
     currWeather.append($(`<li>Humidity: ${data.main["humidity"]}%</li>`));
     getUV(data.coord["lat"], data.coord["lon"])
-    
 }
 
-// function fiveDay(lat, lon) {
-//     fetch(uvAPI + "lat=" + lat + "&lon=" + lon + params.apiKey)
-//         .then(function (response) {
-//             return response.json();
-//         })
-//         .then(function(data) {
-//             console.log(data)
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//             alert("city not found");
-//             return;
-//         });
-// }
-
+// call the One Call API using the Lon and Lat from the Current Day API to get five day forecast
 function fiveDay(lat, lon) {
     forecast.empty();
     fetch(uvAPI + "lat=" + lat + "&lon=" + lon + params.units + params.apiKey)
@@ -185,76 +133,39 @@ function fiveDay(lat, lon) {
             return response.json();
         })
         .then(function(data) {
-            console.log(data.daily[0]);
-            
+            console.log(data.daily[0]);            
             for(var i = 0; i < 5; i++)
-                forecast.append($(`<div><ul><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));
-            
+                forecast.append($(`<div><ul><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));       
         })
 }
 
 function renderCityList(data) {
-    // var city = searchResult.val();
-
-    // ulEl.append($(`<li><button type='submit'><a href='${weatherAPI + city + params.units + params.apiKey}'>${data.name}</button></li>`))
-    // ulEl.append($(`<li><button type='submit' class='cityBtn'><a href='javascript:test(event)'>${data.name}</button></li>`))
-    ulEl.append($(`<li><button type='submit' class='cityBtn'>${data.name}</button></li>`))
-
-    // $(".cityBtn").on("click", {
-
-    // }) 
-
+    if(data.cod !== 404) {
+        if(citySearches.indexOf(data.name) === -1) {
+            citySearches.splice(0, 0, data.name)
+            ulEl.append($(`<li><button type='submit' class='weatherBtn cityBtn'>${data.name}</button></li>`));
+        };
+        // ulEl.append($(`<li><button type='submit' class='weatherBtn cityBtn'>${data.name}</button></li>`));
+    }
+    
+    // id='${data.coord.id}
 }
 
-function renderHistoryData(event) {
+
+// display current weather data by clicking on button in the search history
+function renderSearchHistory(event) {
     event.preventDefault();
-    // var btn = event.target;
-    console.log("test");
-    // fetch(weatherAPI + city + params.units + params.apiKey)
-    //     .then(function (response) {
-    //         return response.json();
-    //     })
-    //     .then(function (data) {
-    //         console.log(data);
-    //         console.log(data.name);
-    //         // console.log(data.main);
-    //         console.log(data.weather[0]["icon"]);
-    //         console.log(data.wind);
-    //         console.log(data.coord);
-    //         console.log(JSON.stringify(data))
-    //         localStorage.setItem(city, JSON.stringify(data))
-    //         citySearches.splice(0, 0, city)
-    //         renderCityList(data);
-    //     })
-    //     .catch((error) => {
-    //         console.log(error);
-    //         alert("city not found");
-    //         return;
-    //     });
+    var city = event.target.innerText;
+    console.log(event)
+    fetch(weatherAPI + city + params.units + params.apiKey)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                renderCurrWeather(data);
+                // forecast.empty();
+                fiveDay(data.coord["lat"], data.coord["lon"]);
+            })
 }
-
-// https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&units=imperial&appid={API key}
-
-
-// $.ajax({
-//     url: weatherAPI,
-//     method: 'GET',
-//   }).then(function (response) {
-//     console.log('Ajax Reponse \n-------------');
-//     console.log(response);
-//   });
-
-// test()
-
-// submitBtn.on("click", function(event){
-//     event.preventDefault();
-//     subBtn = event.target;
-//     console.log(subBtn);
-
-//     console.log(searchResult.val());
-// })
-
 
 submitBtn.on("click", test)
-cityBtn.on("click", renderHistoryData)
-// $(".cityBtn").on("click", renderHistoryData)
