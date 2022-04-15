@@ -26,11 +26,16 @@ function displayWeather(event) {
             .then(function (data) {
                 if(data.cod == 404) {
                     alert("City Not Found");
+                    searchResult.val("");
+                    return;
+                } else if (city === "") {
+                    alert("Enter a City Name");
                     return;
                 } else {
                     renderCityList(data);
                     renderCurrWeather(data);
                     fiveDay(data.coord["lat"], data.coord["lon"]);
+                    searchResult.val("");
                     // event listener was running event twice when button was click.  Unbinding the even so the function only runs once on click.
                     $(".cityBtn").unbind("click").click(renderSearchHistory)
                 };
@@ -41,6 +46,7 @@ function displayWeather(event) {
                 return;
             });
     };
+    
 };
 
 // WHEN I view current weather conditions for that city
@@ -48,7 +54,13 @@ function displayWeather(event) {
 
 function renderCurrWeather (data) {
     currWeather.empty();
-    currWeather.append($(`<li><h2>${data.name} ${moment().format("L")}<img src="https://openweathermap.org/img/wn/${data.weather[0]["icon"]}@2x.png"></h2></li>`));
+    // The openweathermap img for a sunny day was difficult to see with the background colors I chose for the Cureent Weather section.
+    // Checking to see if the the icon ID matches the ID for Sunny day then replacing with a more visible icon from a different website.
+    if(data.weather[0]["icon"] === "01d") {
+        currWeather.append($(`<li><h2>${data.name} (${moment().format("L")})<a href="https://www.freeiconspng.com/img/23508" title="Image from freeiconspng.com"><img src="https://www.freeiconspng.com/uploads/sunny-icon-2.png" width="100" alt="Sunny Ico Download" /></a></h2></li>`));
+    } else {
+        currWeather.append($(`<li><h2>${data.name} (${moment().format("L")})<img src="https://openweathermap.org/img/wn/${data.weather[0]["icon"]}@2x.png"></h2></li>`));
+    }
     currWeather.append($(`<li>Temp: ${Math.round(data.main["temp"])}°F</li>`));
     currWeather.append($(`<li>Wind: ${Math.round(data.wind["speed"])} MPH</li>`));
     currWeather.append($(`<li>Humidity: ${data.main["humidity"]}%</li>`));
@@ -93,16 +105,22 @@ function fiveDay(lat, lon) {
         .then(function(response) {
             return response.json();
         })
-        .then(function(data) {          
-            for(var i = 0; i < 5; i++)
-                forecast.append($(`<div><ul><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));       
+        .then(function(data) {     
+            for(var i = 0; i < 5; i++) {
+                // *See renderCurrWeather function on the reason for checking and changing the sunny day icon
+                if(data.daily[i].weather[0]["icon"] === "01d") {
+                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><a href="https://www.freeiconspng.com/img/23508" title="Image from freeiconspng.com"><img src="https://www.freeiconspng.com/uploads/sunny-icon-2.png" width="100" alt="Sunny Ico Download" /></a></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));
+                } else {
+                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`)); 
+                }
+            }      
         });
 };
 
 // WHEN I click on a city in the search history
 // THEN I am again presented with current and future conditions for that city
 
-// loop through results array to append list items of the last 8 search results.  
+// loop through results array to append list items of the last 8 search results, in descending order starting with most recent search
 // each new result is spliced into the array at the beginning, moving the index position of all previous results up by 1
 function renderCityList(data) {
     if(citySearches.indexOf(data.name) === -1) {

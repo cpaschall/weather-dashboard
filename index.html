@@ -12,30 +12,29 @@
     <header>
         <h1>header</h1>
     </header>
-    <main class="mainPage">
+    <main>
+        <h4>.mainPage</h4>
         <div class="container leftSide">
-            <!-- <h2>search container</h2> -->
+            <h4>.container .leftSide</h4>
             <div id="searchBar">
-                <h3>search bar</h3>
-                <form action="">
-                    <label for="">Search</label>
-                    <input type="text" placeholder="Search" id="queryInput">
-                    <button type="submit" class="weatherBtn" id="querySub">Submit</button>
+                <form id="searchForm">
+                    <label class="searchItem">Search</label>
+                    <input type="text" class="searchItem" id="queryInput" placeholder="Enter City">
+                    <button type="submit" class="weatherBtn searchItem" id="querySub">Submit</button>
                 </form>
             </div>
             <div id="cityList">
-                <h3>city list</h3>
                 <ul id="cities">
             
                 </ul>
             </div>
         </div>
         <div class="container rightSide">
-            <!-- <h2>display container</h2> -->
+            <h4>.container .rightSide</h4>
             <div id="currentWeather">
                 <ul id="currWeather">
-                </ul>
 
+                </ul>
             </div>
             <div id="forecast">
                 <h3>5 day forecast</h3>
