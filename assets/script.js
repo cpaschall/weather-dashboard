@@ -109,9 +109,9 @@ function fiveDay(lat, lon) {
             for(var i = 0; i < 5; i++) {
                 // *See renderCurrWeather function on the reason for checking and changing the sunny day icon
                 if(data.daily[i].weather[0]["icon"] === "01d") {
-                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><a href="https://www.freeiconspng.com/img/23508" title="Image from freeiconspng.com"><img src="https://www.freeiconspng.com/uploads/sunny-icon-2.png" width="100" alt="Sunny Ico Download" /></a></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));
+                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><a href="https://www.freeiconspng.com/img/23508" title="Image from freeiconspng.com"><img src="https://www.freeiconspng.com/uploads/sunny-icon-2.png" width="100" alt="Sunny Ico Download" /></a></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${Math.round(data.daily[i].wind_speed)} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`));
                 } else {
-                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${data.daily[i].wind_speed} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`)); 
+                    forecast.append($(`<div><ul class="fiveDay"><li>${moment().add(i+1, "day").format("L")}</li><li><img src="https://openweathermap.org/img/wn/${data.daily[i].weather[0]["icon"]}@2x.png"></li><li>Temp: ${Math.round(data.daily[i]["temp"]["day"])}°F</li><li>Wind: ${Math.round(data.daily[i].wind_speed)} MPH</li><li>Humidity: ${data.daily[i].humidity}%</li></ul></div>`)); 
                 }
             }      
         });
